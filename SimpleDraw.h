@@ -5,8 +5,11 @@
 #include <iostream>
 #include <string.h>
 
-volatile int initialized = 0;
-volatile int doPaint = 0;
+HANDLE sem_initialized = CreateSemaphore(NULL, 1, 1, NULL);
+HANDLE sem_initFinished = CreateSemaphore(NULL, 0, 1, NULL);
+HANDLE sem_paintRequest = CreateSemaphore(NULL, 0, 1, NULL);
+HANDLE sem_paintStart = CreateSemaphore(NULL, 0, 1, NULL);
+HANDLE sem_paintDone = CreateSemaphore(NULL, 0, 1, NULL);
 volatile HDC hDC;
 volatile HWND window;
 PAINTSTRUCT ps;
@@ -22,8 +25,9 @@ void initialize();
 void usePen(int style = PS_SOLID, int width = 1, COLORREF color = RGB(0, 0, 0))
 {
 	// style : PS_SOLID, PS_DASH, PS_DOT, PS_DASHDOT, PS_DASHDOTDOT, or PS_NULL
-	if(!initialized) initialize();
-	while(!initialized);
+	initialize();
+	DWORD sem_result = WaitForSingleObject(sem_initFinished, INFINITE);
+	ReleaseSemaphore(sem_initFinished, 1, NULL);
 	if(pen) DeleteObject(pen);
 	pen = CreatePen(style, width, color);
 }
@@ -31,8 +35,9 @@ void usePen(int style = PS_SOLID, int width = 1, COLORREF color = RGB(0, 0, 0))
 void useBrush(int style = 0, COLORREF color = RGB(255, 255, 255))
 {
 	// style : 0 = NO FILL, 1 = FILL, 2..7 = PATTERNS
-	if(!initialized) initialize();
-	while(!initialized);
+	initialize();
+	DWORD sem_result = WaitForSingleObject(sem_initFinished, INFINITE);
+	ReleaseSemaphore(sem_initFinished, 1, NULL);
 	if(brush) DeleteObject(brush);
 	switch(style) {
 	case 1:
@@ -63,17 +68,17 @@ static wchar_t* charToWChar(const char* text, size_t *convertedChars)
 
 void _STARTPAINT()
 {
-	if(!initialized) initialize();
-	while(!initialized);
-	while(doPaint != 0);
+	initialize();
+	DWORD sem_result = WaitForSingleObject(sem_initFinished, INFINITE);
+	ReleaseSemaphore(sem_initFinished, 1, NULL);
+	ReleaseSemaphore(sem_paintRequest, 1, NULL);
 	RedrawWindow(window, NULL, NULL, RDW_INVALIDATE);
-	doPaint = 1;
-	while(doPaint != 2);
+	WaitForSingleObject(sem_paintStart, INFINITE);
 }
 
 void _ENDPAINT()
 {
-	doPaint = 3;
+	ReleaseSemaphore(sem_paintDone, 1, NULL);
 }
 
 void drawLine(int x1, int y1, int x2, int y2)
@@ -132,8 +137,9 @@ void drawPolygon(int points[][2], int n)
 
 void setWindowSize(int w, int h)
 {
-	if(!initialized) initialize();
-	while(!initialized);
+	initialize();
+	DWORD sem_result = WaitForSingleObject(sem_initFinished, INFINITE);
+	ReleaseSemaphore(sem_initFinished, 1, NULL);
 	SetWindowPos(window, NULL, 0, 0, w, h, SWP_NOMOVE);
 }
 
@@ -145,21 +151,21 @@ struct thread_data
 
 long __stdcall WindowProcedure( HWND window, unsigned int msg, WPARAM wp, LPARAM lp )
 {
+	DWORD sem_result;
 	switch(msg)
 	{
 	case WM_PAINT:
-
-		if(doPaint == 1)
+		sem_result = WaitForSingleObject(sem_paintRequest, 0L);
+		if(sem_result == WAIT_OBJECT_0)
 		{
 			hDC = BeginPaint(window, &ps);
 			SelectObject(hDC, pen);
 			if(brush) SelectObject(hDC, brush);
 			else SelectObject(hDC, GetStockObject( NULL_BRUSH ));
-			doPaint = 2;
-			while(doPaint != 3);
+			ReleaseSemaphore(sem_paintStart, 1, NULL);
+			WaitForSingleObject(sem_paintDone, INFINITE);
 			EndPaint(window, &ps);
 		}
-		doPaint = 0;
 		return 0L;
 	case WM_DESTROY:
 		std::cout << "\nDestroying window\n" ;
@@ -206,7 +212,7 @@ DWORD WINAPI openWindow(LPVOID lpParameter)
 		if(window)
 		{
 			ShowWindow( window, SW_SHOWDEFAULT ) ;
-			initialized = 1;
+			ReleaseSemaphore(sem_initFinished, 1, NULL);
 			MSG msg ;
 			while( GetMessage( &msg, 0, 0, 0 ) ) DispatchMessage(&msg);
 		}
@@ -217,12 +223,14 @@ DWORD WINAPI openWindow(LPVOID lpParameter)
 
 void initialize()
 {
-	if(!initialized)
+	DWORD sem_result = WaitForSingleObject(sem_initialized, 0L);
+	if(sem_result == WAIT_OBJECT_0)
 	{
 		CreateThread(NULL, 0, openWindow, new thread_data(0) , 0, 0);
-		while(!initialized);
-		if(initialized)
+		sem_result = WaitForSingleObject(sem_initFinished, INFINITE);
+		if(sem_result == WAIT_OBJECT_0)
 		{
+			ReleaseSemaphore(sem_initFinished, 1, NULL);
 			usePen();
 			useBrush();
 		}
