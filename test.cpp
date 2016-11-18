@@ -12,8 +12,11 @@ void main()
 	// Line (x1,y1,x2,y2)
 	drawLine(150, 200, 250, 100);
 	// Polygon (array of pointX,Y, arraySize)
-	int p[][2] = {{10,10},{90,10},{90,90},{10,10}};
-	drawPolygon(p, 4);
+	int p[][2] = {{10,10},{90,10},{90,90}};
+	drawPolygon(p, 3);
+	// Polyline (array of pointX,Y, arraySize)
+	int q[][2] = {{300,10},{320,40},{340,10},{360,40}};
+	drawPolyline(q, 4);
 
 	// Use brush
 	// style : 0 = NO FILL, 1 = FILL, 2..7 = PATTERNS
@@ -38,6 +41,8 @@ void main()
 	drawEllipse(175, 300, 25, 50);
 	// Circle (xCenter,yCenter,radius)
 	drawCircle(175, 300, 50);
+	// Arc (boundingRectX1,boundingRectY1,boundingRectX2,boundingRectY2, arcStartX, arcStartY, arcEndX, arcEndY)
+	drawArc(150, 50, 250, 150, 240, 70, 160, 70);
 	// Text (x,y,string)
 	drawText(170, 100, "Hello!");
 

@@ -127,11 +127,26 @@ void drawCircle(int x, int y, int r)
 	_ENDPAINT();
 }
 
+void drawArc(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	_STARTPAINT();
+	Arc(hDC, x1, y1, x2, y2, x3, y3, x4, y4);
+	_ENDPAINT();
+}
+
 void drawPolygon(int points[][2], int n)
 {
 	POINT *p = (POINT *) points;
 	_STARTPAINT();
 	Polygon(hDC, p, n);
+	_ENDPAINT();
+}
+
+void drawPolyline(int points[][2], int n)
+{
+	POINT *p = (POINT *) points;
+	_STARTPAINT();
+	Polyline(hDC, p, n);
 	_ENDPAINT();
 }
 
