@@ -5,6 +5,7 @@ Features:
 - Simple drawing functions: Line, Polygon, Polyline, Rectangle, Square, Circle, Ellipse, Arc, Text
 - Pen and brush support: Setting RGB colors, solid, no-fill, various patterns.
 - Mouse position and button-press detections.
+- Keystroke detection
 - No need to deal with opening window and handle events.
 - Supports console applications.
 - Simple interface, single header.
