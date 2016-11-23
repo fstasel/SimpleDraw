@@ -14,6 +14,8 @@ volatile HPEN pen = NULL;
 volatile HBRUSH brush = NULL;
 volatile int mouseX = 0, mouseY = 0;
 volatile int mouseButton = 0;
+volatile int keyPressed = 0;
+volatile int _key = 0;
 
 void usePen(int style, int width, COLORREF color)
 {
@@ -187,6 +189,13 @@ long __stdcall WindowProcedure( HWND window, unsigned int msg, WPARAM wp, LPARAM
 		mouseX = LOWORD(lp);
 		mouseY = HIWORD(lp);
 		return DefWindowProc( window, msg, wp, lp ) ;
+	case WM_KEYDOWN:
+		keyPressed = 1;
+		_key = wp;
+		return DefWindowProc( window, msg, wp, lp ) ;
+	case WM_KEYUP:
+		keyPressed = 0;
+		return DefWindowProc( window, msg, wp, lp ) ;
 	default:
 		return DefWindowProc( window, msg, wp, lp ) ;
 	}
@@ -195,6 +204,7 @@ long __stdcall WindowProcedure( HWND window, unsigned int msg, WPARAM wp, LPARAM
 int getMouseX() { return mouseX; }
 int getMouseY() { return mouseY; }
 int getMouseButton() { return mouseButton; }
+int getKey() { if(keyPressed) return _key; return 0; }
 
 DWORD WINAPI openWindow(LPVOID lpParameter)
 {

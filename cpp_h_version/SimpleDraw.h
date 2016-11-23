@@ -30,5 +30,6 @@ long __stdcall WindowProcedure( HWND window, unsigned int msg, WPARAM wp, LPARAM
 int getMouseX();
 int getMouseY();
 int getMouseButton();
+int getKey();
 DWORD WINAPI openWindow(LPVOID lpParameter);
 void initialize();

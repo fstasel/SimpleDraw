@@ -13,14 +13,14 @@ void main()
 	// Create Ball array
 	Ball* b = new Ball[num];
 
-	while(getMouseButton() == 0) // Loop until mouse click
+	while(getMouseButton() == 0 && !getKey()) // Loop until mouse click
 	{
 		for(int i = 0; i < num; i++)
 		{
 			b[i].draw();
 			b[i].move();
 		}
-		drawText(150,20,"Click to exit");
+		drawText(80,20,"Click mouse or hit keys to exit");
 		// Wait a while
 		Sleep(20);
 	}
