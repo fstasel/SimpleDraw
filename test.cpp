@@ -79,13 +79,13 @@ void main()
 	drawRectangle(0, 0, 400, 400);
 	usePen(PS_SOLID, 2);
 	drawText(90, 20, "Use A-Z keys to change color!");
-	drawText(80, 35, "Press right mouse button to quit!");
+	drawText(60, 35, "Press right mouse button or space key to quit!");
 	int x1, y1, x2, y2;
 	int b;
 	char key;
 	x1 = getMouseX();
 	y1 = getMouseY();
-	while((b = getMouseButton()) != 2)
+	while((b = getMouseButton()) != 2 && !getKey(' '))
 	{
 		if(b == 1)
 		{

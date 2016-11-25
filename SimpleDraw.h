@@ -21,6 +21,7 @@ volatile int mouseX = 0, mouseY = 0;
 volatile int mouseButton = 0;
 volatile int keyPressed = 0;
 volatile int _key = 0;
+volatile int _keys[256];
 
 void initialize();
 
@@ -205,9 +206,11 @@ long __stdcall WindowProcedure( HWND window, unsigned int msg, WPARAM wp, LPARAM
 	case WM_KEYDOWN:
 		keyPressed = 1;
 		_key = wp;
+		_keys[wp] = -1;
 		return DefWindowProc( window, msg, wp, lp ) ;
 	case WM_KEYUP:
 		keyPressed = 0;
+		_keys[wp] = 0;
 		return DefWindowProc( window, msg, wp, lp ) ;
 	default:
 		return DefWindowProc( window, msg, wp, lp ) ;
@@ -218,6 +221,7 @@ int getMouseX() { return mouseX; }
 int getMouseY() { return mouseY; }
 int getMouseButton() { return mouseButton; }
 int getKey() { if(keyPressed) return _key; return 0; }
+int getKey(int k) { return _keys[k]; }
 
 DWORD WINAPI openWindow(LPVOID lpParameter)
 {
