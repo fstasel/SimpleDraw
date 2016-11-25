@@ -31,5 +31,6 @@ int getMouseX();
 int getMouseY();
 int getMouseButton();
 int getKey();
+int getKey(int k);
 DWORD WINAPI openWindow(LPVOID lpParameter);
 void initialize();
