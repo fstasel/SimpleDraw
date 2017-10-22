@@ -4,7 +4,7 @@ A single C++ header providing extremely simple drawing functions for beginners. 
 Features:
 - Simple drawing functions: Line, Polygon, Polyline, Rectangle, Square, Circle, Ellipse, Arc, Text
 - Pen and brush support: Setting RGB colors, solid, no-fill, various patterns.
-- Mouse position and button-press detections.
+- Mouse position and press-button detections.
 - Keystroke detection
 - No need to deal with opening window and handle events.
 - Supports console applications.
